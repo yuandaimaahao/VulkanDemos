@@ -24,7 +24,7 @@ VulkanExampleBase::~VulkanExampleBase() {
         }
 
         // Destroy framebuffers
-        for (auto& fb : frameBuffers) {
+        for (auto &fb: frameBuffers) {
             vkDestroyFramebuffer(device, fb, nullptr);
         }
 
@@ -45,7 +45,7 @@ VulkanExampleBase::~VulkanExampleBase() {
         }
 
         // Destroy swapchain image views
-        for (auto& buffer : swapChainBuffers) {
+        for (auto &buffer: swapChainBuffers) {
             vkDestroyImageView(device, buffer.view, nullptr);
         }
 
@@ -79,10 +79,10 @@ VulkanExampleBase::~VulkanExampleBase() {
     }
 }
 
-void VulkanExampleBase::initVulkan(android_app* app) {
+void VulkanExampleBase::initVulkan(android_app *app) {
     androidApp = app;
     LOGI("Initializing Vulkan...");
-    
+
     createInstance();
     createSurface();
     createDevice();
@@ -97,9 +97,9 @@ void VulkanExampleBase::createInstance() {
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.apiVersion = VK_API_VERSION_1_1;
 
-    std::vector<const char*> instanceExtensions = {
-        VK_KHR_SURFACE_EXTENSION_NAME,
-        VK_KHR_ANDROID_SURFACE_EXTENSION_NAME
+    std::vector<const char *> instanceExtensions = {
+            VK_KHR_SURFACE_EXTENSION_NAME,
+            VK_KHR_ANDROID_SURFACE_EXTENSION_NAME
     };
 
     VkInstanceCreateInfo instanceCI{};
@@ -142,7 +142,8 @@ void VulkanExampleBase::createDevice() {
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
     std::vector<VkQueueFamilyProperties> queueFamilyProperties(queueFamilyCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilyProperties.data());
+    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount,
+                                             queueFamilyProperties.data());
 
     for (uint32_t i = 0; i < queueFamilyCount; i++) {
         if (queueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
@@ -159,8 +160,8 @@ void VulkanExampleBase::createDevice() {
     queueCI.queueCount = 1;
     queueCI.pQueuePriorities = &queuePriority;
 
-    std::vector<const char*> deviceExtensions = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    std::vector<const char *> deviceExtensions = {
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
     VkDeviceCreateInfo deviceCI{};
@@ -178,18 +179,21 @@ void VulkanExampleBase::createDevice() {
 
 void VulkanExampleBase::createSwapChain() {
     VkSurfaceCapabilitiesKHR surfaceCaps;
-    VK_CHECK_RESULT(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCaps));
+    VK_CHECK_RESULT(
+            vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCaps));
 
     // Get surface formats
     uint32_t formatCount = 0;
-    VK_CHECK_RESULT(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr));
+    VK_CHECK_RESULT(
+            vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr));
     std::vector<VkSurfaceFormatKHR> surfaceFormats(formatCount);
-    VK_CHECK_RESULT(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, surfaceFormats.data()));
+    VK_CHECK_RESULT(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount,
+                                                         surfaceFormats.data()));
 
     // Select format
     colorFormat = VK_FORMAT_R8G8B8A8_UNORM;
     colorSpace = surfaceFormats[0].colorSpace;
-    for (const auto& format : surfaceFormats) {
+    for (const auto &format: surfaceFormats) {
         if (format.format == VK_FORMAT_R8G8B8A8_UNORM) {
             colorFormat = format.format;
             colorSpace = format.colorSpace;
@@ -199,9 +203,13 @@ void VulkanExampleBase::createSwapChain() {
 
     // Get present modes
     uint32_t presentModeCount = 0;
-    VK_CHECK_RESULT(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr));
+    VK_CHECK_RESULT(
+            vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount,
+                                                      nullptr));
     std::vector<VkPresentModeKHR> presentModes(presentModeCount);
-    VK_CHECK_RESULT(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, presentModes.data()));
+    VK_CHECK_RESULT(
+            vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount,
+                                                      presentModes.data()));
 
     VkExtent2D swapchainExtent = surfaceCaps.currentExtent;
     width = swapchainExtent.width;
@@ -232,6 +240,7 @@ void VulkanExampleBase::createSwapChain() {
 
     // Get swapchain images
     VK_CHECK_RESULT(vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr));
+    LOGI("SwapchainImageCount = %d", imageCount);
     std::vector<VkImage> images(imageCount);
     VK_CHECK_RESULT(vkGetSwapchainImagesKHR(device, swapChain, &imageCount, images.data()));
 
@@ -245,7 +254,8 @@ void VulkanExampleBase::createSwapChain() {
         viewCI.image = images[i];
         viewCI.viewType = VK_IMAGE_VIEW_TYPE_2D;
         viewCI.format = colorFormat;
-        viewCI.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
+        viewCI.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B,
+                             VK_COMPONENT_SWIZZLE_A};
         viewCI.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         viewCI.subresourceRange.baseMipLevel = 0;
         viewCI.subresourceRange.levelCount = 1;
@@ -287,8 +297,10 @@ void VulkanExampleBase::createSynchronizationPrimitives() {
 
     for (uint32_t i = 0; i < MAX_CONCURRENT_FRAMES; i++) {
         VK_CHECK_RESULT(vkCreateFence(device, &fenceCI, nullptr, &waitFences[i]));
-        VK_CHECK_RESULT(vkCreateSemaphore(device, &semaphoreCI, nullptr, &presentCompleteSemaphores[i]));
-        VK_CHECK_RESULT(vkCreateSemaphore(device, &semaphoreCI, nullptr, &renderCompleteSemaphores[i]));
+        VK_CHECK_RESULT(
+                vkCreateSemaphore(device, &semaphoreCI, nullptr, &presentCompleteSemaphores[i]));
+        VK_CHECK_RESULT(
+                vkCreateSemaphore(device, &semaphoreCI, nullptr, &renderCompleteSemaphores[i]));
     }
 }
 
@@ -301,14 +313,14 @@ void VulkanExampleBase::createPipelineCache() {
 void VulkanExampleBase::setupDepthStencil() {
     // Find supported depth format
     std::vector<VkFormat> depthFormats = {
-        VK_FORMAT_D32_SFLOAT_S8_UINT,
-        VK_FORMAT_D32_SFLOAT,
-        VK_FORMAT_D24_UNORM_S8_UINT,
-        VK_FORMAT_D16_UNORM_S8_UINT,
-        VK_FORMAT_D16_UNORM
+            VK_FORMAT_D32_SFLOAT_S8_UINT,
+            VK_FORMAT_D32_SFLOAT,
+            VK_FORMAT_D24_UNORM_S8_UINT,
+            VK_FORMAT_D16_UNORM_S8_UINT,
+            VK_FORMAT_D16_UNORM
     };
 
-    for (auto& format : depthFormats) {
+    for (auto &format: depthFormats) {
         VkFormatProperties formatProps;
         vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &formatProps);
         if (formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
@@ -321,7 +333,7 @@ void VulkanExampleBase::setupDepthStencil() {
     imageCI.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageCI.imageType = VK_IMAGE_TYPE_2D;
     imageCI.format = depthFormat;
-    imageCI.extent = { width, height, 1 };
+    imageCI.extent = {width, height, 1};
     imageCI.mipLevels = 1;
     imageCI.arrayLayers = 1;
     imageCI.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -337,7 +349,8 @@ void VulkanExampleBase::setupDepthStencil() {
     VkMemoryAllocateInfo memAlloc{};
     memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     memAlloc.allocationSize = memReqs.size;
-    memAlloc.memoryTypeIndex = getMemoryTypeIndex(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    memAlloc.memoryTypeIndex = getMemoryTypeIndex(memReqs.memoryTypeBits,
+                                                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     VK_CHECK_RESULT(vkAllocateMemory(device, &memAlloc, nullptr, &depthStencil.memory));
     VK_CHECK_RESULT(vkBindImageMemory(device, depthStencil.image, depthStencil.memory, 0));
@@ -403,14 +416,16 @@ void VulkanExampleBase::setupRenderPass() {
     dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
     dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-    dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependencies[0].dstAccessMask =
+            VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
     dependencies[1].srcSubpass = 0;
     dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
     dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependencies[1].srcAccessMask =
+            VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
     dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
@@ -431,8 +446,8 @@ void VulkanExampleBase::setupFrameBuffer() {
 
     for (uint32_t i = 0; i < imageCount; i++) {
         std::array<VkImageView, 2> attachments = {
-            swapChainBuffers[i].view,
-            depthStencil.view
+                swapChainBuffers[i].view,
+                depthStencil.view
         };
 
         VkFramebufferCreateInfo fbCI{};
@@ -469,9 +484,10 @@ void VulkanExampleBase::prepareFrame() {
     VK_CHECK_RESULT(vkWaitForFences(device, 1, &waitFences[currentFrame], VK_TRUE, UINT64_MAX));
     VK_CHECK_RESULT(vkResetFences(device, 1, &waitFences[currentFrame]));
 
-    VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, 
-        presentCompleteSemaphores[currentFrame], VK_NULL_HANDLE, &currentBuffer);
-    
+    VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX,
+                                            presentCompleteSemaphores[currentFrame], VK_NULL_HANDLE,
+                                            &currentBuffer);
+
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
         // Handle resize
         LOGW("Swapchain out of date or suboptimal");
@@ -506,7 +522,8 @@ void VulkanExampleBase::submitFrame() {
     currentFrame = (currentFrame + 1) % MAX_CONCURRENT_FRAMES;
 }
 
-uint32_t VulkanExampleBase::getMemoryTypeIndex(uint32_t typeBits, VkMemoryPropertyFlags properties) {
+uint32_t
+VulkanExampleBase::getMemoryTypeIndex(uint32_t typeBits, VkMemoryPropertyFlags properties) {
     for (uint32_t i = 0; i < deviceMemoryProperties.memoryTypeCount; i++) {
         if ((typeBits & 1) == 1) {
             if ((deviceMemoryProperties.memoryTypes[i].propertyFlags & properties) == properties) {
@@ -519,10 +536,11 @@ uint32_t VulkanExampleBase::getMemoryTypeIndex(uint32_t typeBits, VkMemoryProper
     return 0;
 }
 
-VkShaderModule VulkanExampleBase::loadShader(const std::string& filename) {
+VkShaderModule VulkanExampleBase::loadShader(const std::string &filename) {
     LOGI("Loading shader: %s", filename.c_str());
 
-    AAsset* asset = AAssetManager_open(androidApp->activity->assetManager, filename.c_str(), AASSET_MODE_BUFFER);
+    AAsset *asset = AAssetManager_open(androidApp->activity->assetManager, filename.c_str(),
+                                       AASSET_MODE_BUFFER);
     if (!asset) {
         LOGE("FATAL: Could not open shader file: %s", filename.c_str());
         LOGE("Make sure shader files are compiled and placed in assets/shaders/");
@@ -532,14 +550,14 @@ VkShaderModule VulkanExampleBase::loadShader(const std::string& filename) {
     size_t size = AAsset_getLength(asset);
     LOGI("Shader file size: %zu bytes", size);
 
-    char* code = new char[size];
+    char *code = new char[size];
     AAsset_read(asset, code, size);
     AAsset_close(asset);
 
     VkShaderModuleCreateInfo shaderModuleCI{};
     shaderModuleCI.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     shaderModuleCI.codeSize = size;
-    shaderModuleCI.pCode = reinterpret_cast<const uint32_t*>(code);
+    shaderModuleCI.pCode = reinterpret_cast<const uint32_t *>(code);
 
     VkShaderModule shaderModule;
     VK_CHECK_RESULT(vkCreateShaderModule(device, &shaderModuleCI, nullptr, &shaderModule));
@@ -550,14 +568,13 @@ VkShaderModule VulkanExampleBase::loadShader(const std::string& filename) {
 }
 
 void VulkanExampleBase::setImageLayout(
-    VkCommandBuffer cmdBuffer,
-    VkImage image,
-    VkImageLayout oldLayout,
-    VkImageLayout newLayout,
-    VkImageSubresourceRange subresourceRange,
-    VkPipelineStageFlags srcStageMask,
-    VkPipelineStageFlags dstStageMask)
-{
+        VkCommandBuffer cmdBuffer,
+        VkImage image,
+        VkImageLayout oldLayout,
+        VkImageLayout newLayout,
+        VkImageSubresourceRange subresourceRange,
+        VkPipelineStageFlags srcStageMask,
+        VkPipelineStageFlags dstStageMask) {
     VkImageMemoryBarrier barrier{};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
@@ -613,19 +630,20 @@ void VulkanExampleBase::setImageLayout(
             break;
     }
 
-    vkCmdPipelineBarrier(cmdBuffer, srcStageMask, dstStageMask, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+    vkCmdPipelineBarrier(cmdBuffer, srcStageMask, dstStageMask, 0, 0, nullptr, 0, nullptr, 1,
+                         &barrier);
 }
 
 void VulkanExampleBase::renderLoop() {
     int events;
-    android_poll_source* source;
+    android_poll_source *source;
 
     // Use the same do-while pattern as the reference app:
     // - Poll ONE event per iteration (not drain all events)
     // - When not prepared: block with -1 to wait for APP_CMD_INIT_WINDOW
     // - When prepared: use 0 for non-blocking so we can render immediately
     do {
-        if (ALooper_pollOnce(prepared ? 0 : -1, nullptr, &events, (void**)&source) >= 0) {
+        if (ALooper_pollOnce(prepared ? 0 : -1, nullptr, &events, (void **) &source) >= 0) {
             if (source != nullptr) {
                 source->process(source->app, source);
             }
@@ -633,7 +651,7 @@ void VulkanExampleBase::renderLoop() {
 
         // Process GameActivity input events
         if (androidApp != nullptr) {
-            android_input_buffer* inputBuffer = android_app_swap_input_buffers(androidApp);
+            android_input_buffer *inputBuffer = android_app_swap_input_buffers(androidApp);
             if (inputBuffer != nullptr) {
                 if (inputBuffer->motionEventsCount > 0) {
                     android_app_clear_motion_events(inputBuffer);
@@ -658,8 +676,8 @@ void VulkanExampleBase::renderLoop() {
 }
 
 // Static callback handler
-void VulkanExampleBase::handleAppCommand(android_app* app, int32_t cmd) {
-    VulkanExampleBase* example = reinterpret_cast<VulkanExampleBase*>(app->userData);
+void VulkanExampleBase::handleAppCommand(android_app *app, int32_t cmd) {
+    VulkanExampleBase *example = reinterpret_cast<VulkanExampleBase *>(app->userData);
     if (example) {
         // Ensure androidApp is set
         if (example->androidApp == nullptr) {
