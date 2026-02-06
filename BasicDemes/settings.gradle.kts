@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Triangle"
+rootProject.name = "BasicDemos"
 include(":app")
- 
+include(":triangle")
